@@ -878,52 +878,111 @@ Config = {
     },
 
     Logs = { --all the below functions are server sided
-        rewardsGiven = function(playerSource, itemsGiven)
+        WebHook = '', --Discord webhook
+        rewardsGiven = function(playerSource, playerIdentifier, itemsGiven)
             ---Rewards given to player on successful mine (stonewash disabled) or successful stone wash
             ---@param playerSource number Server id of the player
+            ---@param playerIdentifier string Player identifier (citizenid / identifier)
             ---@param itemsGiven table: { [number]: { item string, amount number, label string } } Table of items given
 
+            local rewards
+            local next = next
+            if itemsGiven and next(itemsGiven) ~= nil then
+                for key, value in pairs(itemsGiven) do 
+                    if not rewards then 
+                        rewards = '['..value.amount..'] '..value.label 
+                    else
+                        rewards = rewards..', ['..value.amount..'] '..value.label
+                    end
+                end
+            end
+
+            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Received mining awards: '..rewards
+            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Rewards', 5763719, logString)
         end,
-        stonesGiven = function(playerSource, stoneAmount)
+        stonesGiven = function(playerSource, playerIdentifier, stoneAmount)
+            print('heh??')
             ---Stone amount given to player on successful mine with stonewash enabled
             ---@param playerSource number Server id of the player
+            ---@param playerIdentifier string Player identifier (citizenid / identifier)
             ---@param stoneAmount number Amount of stones given
 
+            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Received ['..stoneAmount..'] '..Config.StoneWashing.StoneItemLabel
+            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Stones', 15105570, logString)
         end,
-        gemsSold = function(playerSource, gems, saleAmount)
+        gemsSold = function(playerSource, playerIdentifier, gems, saleAmount)
             ---Gems successfully sold to pawn shop
             ---@param playerSource number Server id of the player
+            ---@param playerIdentifier string Player identifier (citizenid / identifier)
             ---@param gems table: { [string]: { name string, amount number, label string } } Table of gem items sold
             ---@param saleAmount number Total money awarded for sale
 
+            local rewards
+            local next = next
+            if gems and next(gems) ~= nil then
+                for key, value in pairs(gems) do 
+                    if not rewards then 
+                        rewards = '['..value.amount..'] '..value.label 
+                    else
+                        rewards = rewards..', ['..value.amount..'] '..value.label
+                    end
+                end
+            end
+
+            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Received $'..Utils:FormatThousand(saleAmount)..' for the sale of '..rewards
+            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Gem Sale', 5763719, logString)
         end,
-        itemsSold = function(playerSource, items, saleAmount)
+        itemsSold = function(playerSource, playerIdentifier, items, saleAmount)
             ---Items successfully sold to pawn shop
             ---@param playerSource number Server id of the player
+            ---@param playerIdentifier string Player identifier (citizenid / identifier)
             ---@param items table: { [string]: { name string, amount number, label string } } Table of items sold
             ---@param saleAmount number Total money awarded for sale
 
+            local rewards
+            local next = next
+            if items and next(items) ~= nil then
+                for key, value in pairs(items) do 
+                    if not rewards then 
+                        rewards = '['..value.amount..'] '..value.label 
+                    else
+                        rewards = rewards..', ['..value.amount..'] '..value.label
+                    end
+                end
+            end
+
+            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Received $'..Utils:FormatThousand(saleAmount)..' for the sale of '..rewards
+            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Pawn Shop Sale', 5763719, logString)
         end,
-        smeltedItems = function(playerSource, item, amount)
+        smeltedItems = function(playerSource, playerIdentifier, item, amount)
             ---Items successfully smelted
             ---@param playerSource number Server id of the player
+            ---@param playerIdentifier string Player identifier (citizenid / identifier)
             ---@param item string Item name
             ---@param amount number Amount smelted
 
+            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Smelted ['..amount..'] '..item
+            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Smelter', 15844367, logString)
         end,
-        gemsCut = function(playerSource, item, amount)
+        gemsCut = function(playerSource, playerIdentifier, item, amount)
             ---Gem items successfully cut
             ---@param playerSource number Server id of the player
+            ---@param playerIdentifier string Player identifier (citizenid / identifier)
             ---@param item string Item name
             ---@param amount number Amount cut
 
+            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Cut ['..amount..'] '..item
+            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Gem Cutting', 15105570, logString)
         end,
-        craftedItems = function(playerSource, item, amount)
+        craftedItems = function(playerSource, playerIdentifier, item, amount)
             ---Items successfully crafted
             ---@param playerSource number Server id of the player
+            ---@param playerIdentifier string Player identifier (citizenid / identifier)
             ---@param item string Item name
             ---@param amount number Amount crafted
 
+            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Crafted ['..amount..'] '..item
+            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Crafting', 15548997, logString)
         end
     },
 
