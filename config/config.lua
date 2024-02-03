@@ -4,23 +4,6 @@ Config = {
     ProgressCirclePosition = 'middle', --position of the progress circle. can be either 'middle' or 'bottom'
     ------------------------------------------------------------------------------------------------------------------------------
 
-    ------------------------------------------------------NOTIFICATIONS-----------------------------------------------------------
-    Notify = { 
-        UseCustom = false, --FALSE = DEFAULT NOTIFY WILL BE YOUR FRAMEWORKS NOTIFY SYSTEM (QBCore:Notify / esx:showNotification) / TRUE = CUSTOM NOTIFY SCRIPT (OX_LIB / T-NOTIFY / ECT)
-        CustomClientNotifyFunction = function(Data) --**CLIENT SIDE CODE**
-            ---@param Data table: { Message string, Type string, Duration number }
-
-            --TriggerEvent('QBCore:Notify', Data.Message, Data.Type, Data.Duration) --QBCORE EXAMPLE
-        end,
-        CustomServerNotifyFunction = function(PlayerSource, Data) --**SERVER SIDE CODE** SAME AS ABOVE EXCEPT PASSES THE SOURCE TO SEND THE NOTIFICATION TO FROM THE SERVER
-            ---@param PlayerSource number Server id of the player
-            ---@param Data table: { Message string, Type string, Duration number }
-
-            --TriggerClientEvent('QBCore:Notify', PlayerSource, Data.Message, Data.Type, Data.Duration) --QBCORE EXAMPLE
-        end,
-    },
-    ------------------------------------------------------------------------------------------------------------------------------
-
     ------------------------------------------------------BLIP--------------------------------------------------------------------
     Blips = {
         {
@@ -63,19 +46,18 @@ Config = {
     CooldownMin = 60, --Minimum minutes a node is on cooldown before respawning
     CooldownMax = 90, --Maximum minutes a node is on cooldown before respawning
 
+    ---@param item string Item name used with inventory
+    ---@param label string Item Label used for menu and notification display
+    ---@param minRoll number Minimum number for random roll chance
+    ---@param maxRoll number Maximum number for random roll chance
+    ---@param rewardChance number Reward item if rewardChance <= math.random(minRoll, maxRoll)
+    ---@param minAmount number Minimum reward amount (not calculated for gems)
+    ---@param maxAmount number Maximum reward amount (not calculated for gems)
+    ---@param minQuality number Minimum gemQuality metadata (only use for gems)
+    ---@param maxQuality number Maximum gemQuality metadata (only use for gems)
+    ---@param uncutItem string Item name used with inventory for uncut version of gem (if gem cutting is enabled)
+    ---@param uncutItemLabel string Item Label used ofr menu and notification display for uncut version of gem (if gem cutting is enabled)
     Rewards = { --Items rewarded from stone washing (or mining if stone washing is disabled)
-        ---@param item string Item name used with inventory
-        ---@param label string Item Label used for menu and notification display
-        ---@param minRoll number Minimum number for random roll chance
-        ---@param maxRoll number Maximum number for random roll chance
-        ---@param rewardChance number Reward item if rewardChance <= math.random(minRoll, maxRoll)
-        ---@param minAmount number Minimum reward amount (not calculated for gems)
-        ---@param maxAmount number Maximum reward amount (not calculated for gems)
-        ---@param minQuality number Minimum gemQuality metadata (only use for gems)
-        ---@param maxQuality number Maximum gemQuality metadata (only use for gems)
-        ---@param uncutItem string Item name used with inventory for uncut version of gem (if gem cutting is enabled)
-        ---@param uncutItemLabel string Item Label used ofr menu and notification display for uncut version of gem (if gem cutting is enabled)
-
         {
             item = 'ironore', 
             label = 'Iron Ore', 
@@ -875,115 +857,6 @@ Config = {
                 }
             }
         }
-    },
-
-    Logs = { --all the below functions are server sided
-        WebHook = '', --Discord webhook
-        rewardsGiven = function(playerSource, playerIdentifier, itemsGiven)
-            ---Rewards given to player on successful mine (stonewash disabled) or successful stone wash
-            ---@param playerSource number Server id of the player
-            ---@param playerIdentifier string Player identifier (citizenid / identifier)
-            ---@param itemsGiven table: { [number]: { item string, amount number, label string } } Table of items given
-
-            local rewards
-            local next = next
-            if itemsGiven and next(itemsGiven) ~= nil then
-                for key, value in pairs(itemsGiven) do 
-                    if not rewards then 
-                        rewards = '['..value.amount..'] '..value.label 
-                    else
-                        rewards = rewards..', ['..value.amount..'] '..value.label
-                    end
-                end
-            end
-
-            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Received mining awards: '..rewards
-            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Rewards', 5763719, logString)
-        end,
-        stonesGiven = function(playerSource, playerIdentifier, stoneAmount)
-            print('heh??')
-            ---Stone amount given to player on successful mine with stonewash enabled
-            ---@param playerSource number Server id of the player
-            ---@param playerIdentifier string Player identifier (citizenid / identifier)
-            ---@param stoneAmount number Amount of stones given
-
-            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Received ['..stoneAmount..'] '..Config.StoneWashing.StoneItemLabel
-            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Stones', 15105570, logString)
-        end,
-        gemsSold = function(playerSource, playerIdentifier, gems, saleAmount)
-            ---Gems successfully sold to pawn shop
-            ---@param playerSource number Server id of the player
-            ---@param playerIdentifier string Player identifier (citizenid / identifier)
-            ---@param gems table: { [string]: { name string, amount number, label string } } Table of gem items sold
-            ---@param saleAmount number Total money awarded for sale
-
-            local rewards
-            local next = next
-            if gems and next(gems) ~= nil then
-                for key, value in pairs(gems) do 
-                    if not rewards then 
-                        rewards = '['..value.amount..'] '..value.label 
-                    else
-                        rewards = rewards..', ['..value.amount..'] '..value.label
-                    end
-                end
-            end
-
-            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Received $'..Utils:FormatThousand(saleAmount)..' for the sale of '..rewards
-            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Gem Sale', 5763719, logString)
-        end,
-        itemsSold = function(playerSource, playerIdentifier, items, saleAmount)
-            ---Items successfully sold to pawn shop
-            ---@param playerSource number Server id of the player
-            ---@param playerIdentifier string Player identifier (citizenid / identifier)
-            ---@param items table: { [string]: { name string, amount number, label string } } Table of items sold
-            ---@param saleAmount number Total money awarded for sale
-
-            local rewards
-            local next = next
-            if items and next(items) ~= nil then
-                for key, value in pairs(items) do 
-                    if not rewards then 
-                        rewards = '['..value.amount..'] '..value.label 
-                    else
-                        rewards = rewards..', ['..value.amount..'] '..value.label
-                    end
-                end
-            end
-
-            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Received $'..Utils:FormatThousand(saleAmount)..' for the sale of '..rewards
-            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Pawn Shop Sale', 5763719, logString)
-        end,
-        smeltedItems = function(playerSource, playerIdentifier, item, amount)
-            ---Items successfully smelted
-            ---@param playerSource number Server id of the player
-            ---@param playerIdentifier string Player identifier (citizenid / identifier)
-            ---@param item string Item name
-            ---@param amount number Amount smelted
-
-            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Smelted ['..amount..'] '..item
-            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Smelter', 15844367, logString)
-        end,
-        gemsCut = function(playerSource, playerIdentifier, item, amount)
-            ---Gem items successfully cut
-            ---@param playerSource number Server id of the player
-            ---@param playerIdentifier string Player identifier (citizenid / identifier)
-            ---@param item string Item name
-            ---@param amount number Amount cut
-
-            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Cut ['..amount..'] '..item
-            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Gem Cutting', 15105570, logString)
-        end,
-        craftedItems = function(playerSource, playerIdentifier, item, amount)
-            ---Items successfully crafted
-            ---@param playerSource number Server id of the player
-            ---@param playerIdentifier string Player identifier (citizenid / identifier)
-            ---@param item string Item name
-            ---@param amount number Amount crafted
-
-            local logString = '**(Player: '..playerIdentifier..' | ID: '..playerSource..')** Crafted ['..amount..'] '..item
-            Utils:DiscordLog(Config.Logs.WebHook, 'Mining - Crafting', 15548997, logString)
-        end
     },
 
     Nodes = {
